@@ -54,6 +54,33 @@ GMainLoop *main_loop;
 
 #endif
 
+static int number_len(int i) {
+  if (!i)
+    return 1;
+  return floor(log10(abs(i))) + 1;
+}
+
+static void handle_mouse(MEVENT *event) {
+  if(event->bstate & BUTTON1_CLICKED) {
+    // row with the tab list?
+    if(event->y == winrows-2) {
+      int tab_ofs = 14, tab_idx = 1;
+      GList *n = ui_tabs;
+      int tab_width;
+      for(; n; n=n->next, ++tab_idx, tab_ofs += tab_width) {
+        ui_tab_t *t = n->data;
+        tab_width = number_len(tab_idx) + 1 + strlen(t->name) + 1;
+        if(event->x > tab_ofs && event->x < tab_ofs + tab_width) {
+          ui_tab_cur = n;
+          return;
+        }
+      }
+    } else {
+      // TODO
+    }
+  }
+}
+
 #define ctrl_to_ascii(x) ((x) == 127 ? '?' : g_ascii_tolower((x)+64))
 
 static void handle_input() {
@@ -107,6 +134,12 @@ static void handle_input() {
     if(lastesc && r == KEY_CODE_YES && code == KEY_BACKSPACE) {
       r = !KEY_CODE_YES;
       code = 127;
+    }
+    if(!lastesc && code == KEY_MOUSE) {
+      MEVENT event;
+      if(getmouse(&event) == OK) {
+        handle_mouse(&event);
+      }
     }
     key = r == KEY_CODE_YES ? INPT_KEY(code) : code == 27 ? INPT_ALT(0) : code <= 31 ? INPT_CTRL(ctrl_to_ascii(code)) : INPT_CHAR(code);
     // convert wchar_t into gunichar

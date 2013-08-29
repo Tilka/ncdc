@@ -253,6 +253,7 @@ void ui_init() {
   curs_set(0);
   keypad(stdscr, 1);
   nodelay(stdscr, 1);
+  mousemask(BUTTON1_CLICKED, NULL);
 
   // global textinput field
   ui_global_textinput = ui_textinput_create(TRUE, cmd_suggest);
