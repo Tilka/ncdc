@@ -79,6 +79,7 @@
 #endif
 
 #ifdef USE_GEOIP
+#include <gmodule.h>
 #include <GeoIP.h>
 #endif
 

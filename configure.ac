@@ -139,7 +139,7 @@ AC_ARG_WITH([geoip],
             [with_geoip=no])
 AS_IF([test "x$with_geoip" == xyes],
       [PKG_CHECK_MODULES([GEOIP],
-                         [geoip >= 1.2.0],
+                         [gmodule-2.0],
                          [AC_DEFINE(USE_GEOIP, 1, [Use libgeoip for IP-to-country lookups])])])
 
 

@@ -111,9 +111,9 @@ ui_tab_t *uit_userlist_create(hub_t *hub) {
 
 #ifdef USE_GEOIP
   // init these when the first userlist tab is opened
-  if(!geoip4) {
-    geoip4 = GeoIP_open_type(GEOIP_COUNTRY_EDITION,    GEOIP_MEMORY_CACHE);
-    geoip6 = GeoIP_open_type(GEOIP_COUNTRY_EDITION_V6, GEOIP_MEMORY_CACHE);
+  if(libgeoip && !geoip4) {
+    geoip4 = GeoIP_open_type_f(GEOIP_COUNTRY_EDITION,    GEOIP_MEMORY_CACHE);
+    geoip6 = GeoIP_open_type_f(GEOIP_COUNTRY_EDITION_V6, GEOIP_MEMORY_CACHE);
   }
 #endif
 
@@ -181,15 +181,20 @@ static void draw_row(ui_listing_t *list, GSequenceIter *iter, int row, void *dat
 
 #ifdef USE_GEOIP
   const char *country = NULL;
-  if(!ip4_isany(user->ip4))
-    country = GeoIP_country_code_by_addr(geoip4, ip4_unpack(user->ip4));
-  else if(!ip6_isany(user->ip6))
-    country = GeoIP_country_code_by_addr_v6(geoip6, ip6_unpack(user->ip6));
-  if(country)
-    mvaddstr(row, 6, country);
-  int j=9;
+  int j;
+  if(libgeoip) {
+    if(!ip4_isany(user->ip4))
+      country = GeoIP_country_code_by_addr_f(geoip4, ip4_unpack(user->ip4));
+    else if(!ip6_isany(user->ip6))
+      country = GeoIP_country_code_by_addr_v6_f(geoip6, ip6_unpack(user->ip6));
+    if(country)
+      mvaddstr(row, 6, country);
+    j = 9;
+  } else {
+    j = 6;
+  }
 #else
-  int j=6;
+  int j = 6;
 #endif
 
   if (t->cw_user > 1)
@@ -225,7 +230,7 @@ static void draw_row(ui_listing_t *list, GSequenceIter *iter, int row, void *dat
 static void calc_widths(tab_t *t) {
   // available width
 #ifdef USE_GEOIP
-  int w = wincols-9;
+  int w = wincols - (libgeoip ? 9 : 6);
 #else
   int w = wincols-6;
 #endif
@@ -278,8 +283,14 @@ static void t_draw(ui_tab_t *tab) {
   attron(UIC(list_header));
   mvhline(1, 0, ' ', wincols);
 #ifdef USE_GEOIP
-  mvaddstr(1, 2, "opt CC");
-  int i = 9;
+  int i;
+  if(libgeoip) {
+    mvaddstr(1, 2, "opt CC");
+    i = 9;
+  } else {
+    mvaddstr(1, 2, "opt");
+    i = 6;
+  }
 #else
   mvaddstr(1, 2, "opt");
   int i = 6;
