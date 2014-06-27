@@ -118,6 +118,10 @@ static const doc_cmd_t doc_cmds[] = {
   "Kick a user from the hub. This command only works on NMDC hubs, and you need"
   " to be an OP to be able to use it."
 },
+{ "lastlog", "<regex>", "Search through current log.",
+  "Search through the log of the current tab using a regular expression that"
+  " will be matched case-independently.",
+},
 { "listen", NULL, "List currently opened ports.",
   NULL,
 },

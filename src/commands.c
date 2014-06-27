@@ -1248,6 +1248,13 @@ static void c_delhub(char *args) {
 }
 
 
+static void c_lastlog(char *args) {
+  ui_tab_t *tab = ui_tab_cur->data;
+  ui_tab_type_t *t = tab->type;
+  if(t == uit_hub || t == uit_msg || t == uit_main) {
+    ui_logwindow_lastlog(tab->log, args);
+  }
+}
 
 
 // definition of the command list
@@ -1266,6 +1273,7 @@ static cmd_t cmds[] = {
   { "hset",        c_hset,        c_hset_sug       },
   { "hunset",      c_hunset,      c_hunset_sug     },
   { "kick",        c_kick,        c_msg_sug        },
+  { "lastlog",     c_lastlog,     NULL             },
   { "listen",      c_listen,      NULL             },
   { "me",          c_me,          c_say_sug        },
   { "msg",         c_msg,         c_msg_sug        },

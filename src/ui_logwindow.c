@@ -206,6 +206,23 @@ void ui_logwindow_scroll(ui_logwindow_t *lw, int i) {
 }
 
 
+void ui_logwindow_lastlog(ui_logwindow_t *lw, char *pattern) {
+  int cur = 1;
+  GRegex *regex = g_regex_new(pattern, G_REGEX_CASELESS|G_REGEX_OPTIMIZE, 0, NULL);
+  ui_logwindow_addline(lw, "Lastlog:", TRUE, TRUE);
+  int lastlog = lw->lastlog;
+  while(cur <= lastlog) {
+    char *str = lw->buf[cur & LOGWIN_BUF];
+    if(g_regex_match(regex, str, 0, NULL)) {
+      ui_logwindow_addline(lw, str, TRUE, TRUE);
+    }
+    cur = (cur + 1) & LOGWIN_BUF;
+  }
+  g_regex_unref(regex);
+  ui_logwindow_addline(lw, "End of Lastlog", TRUE, TRUE);
+}
+
+
 // Calculate the wrapping points in a line. Storing the mask in *rows, the row
 // where the indent is reset in *ind_row, and returning the number of rows.
 static int ui_logwindow_calc_wrap(char *str, int cols, int indent, int *rows, int *ind_row) {
